@@ -4,6 +4,8 @@
 
 #include <stdint.h>
 
+#define VERBOSE_PARSING
+
 /// java class file
 struct t_class_file {
     uint32_t magic;
@@ -277,4 +279,4 @@ enum e_attribute_name_index {
     ATTRIBUTE_NAME_INDEX_Record
 };
 
-struct t_class_file *parse_class_file_from_bytes(uint8_t *bytes, int len);
+struct t_class_file *parse_class_file_from_bytes(uint8_t *bytes);

@@ -3,21 +3,8 @@
 #include <stdlib.h>
 
 #include "exec.h"
+#include "read.h"
 
-uint8_t *read_file(char *filename) {
-    FILE *file = fopen(filename, "rb");
-    if (file == NULL) {
-        printf("Error: Could not open file %s\n", filename);
-        exit(1);
-    }
-    fseek(file, 0, SEEK_END);
-    long length = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    uint8_t *buffer = malloc(length);
-    fread(buffer, 1, length, file);
-    fclose(file);
-    return buffer;
-}
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -25,7 +12,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
     uint8_t *bytes = read_file(argv[1]);
-    struct t_class_file *classfile = parse_class_file_from_bytes(bytes, 0);
+    struct t_class_file *classfile = parse_class_file_from_bytes(bytes);
     printf("Magic: %x\n", classfile->magic);
     printf("Minor version: %d\n", classfile->minor_version);
     printf("Major version: %d\n", classfile->major_version);

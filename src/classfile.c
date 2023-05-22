@@ -15,9 +15,12 @@ void parse_constant_pool(struct t_cp_info *constant_pool,
                          int *index) {
     for (int i = 1; i < constant_pool_count; i++) {
         uint8_t tag = read_u8(bytes, index);
+        constant_pool[i].tag = tag;
+#ifdef VERBOSE_PARSING
+        printf("read constant of tag: %d\n", tag);
+#endif
         switch (tag) {
         case CONSTANT_Utf8: {
-            constant_pool[i].tag = tag;
             constant_pool[i].info.utf8_info =
                 malloc(sizeof(struct t_constant_utf8_info));
             constant_pool[i].info.utf8_info->length = read_u16(bytes, index);
@@ -27,31 +30,50 @@ void parse_constant_pool(struct t_cp_info *constant_pool,
                 constant_pool[i].info.utf8_info->bytes[j] =
                     read_u8(bytes, index);
             }
+            constant_pool[i]
+                .info.utf8_info
+                ->bytes[constant_pool[i].info.utf8_info->length] = '\0';
+#ifdef VERBOSE_PARSING
+            printf("UTF-8\n");
+            printf("  length: %d\n", constant_pool[i].info.utf8_info->length);
+            printf("  bytes: %s\n", constant_pool[i].info.utf8_info->bytes);
+#endif
             break;
         }
         case CONSTANT_Integer:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.integer_info =
                 malloc(sizeof(struct t_constant_integer_info));
             constant_pool[i].info.integer_info->bytes = read_u32(bytes, index);
+#ifdef VERBOSE_PARSING
+            printf("Integer\n");
+            printf("  bytes: %d\n", constant_pool[i].info.integer_info->bytes);
+#endif
             break;
         case CONSTANT_Float:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.float_info =
                 malloc(sizeof(struct t_constant_float_info));
             constant_pool[i].info.float_info->bytes = read_u32(bytes, index);
+#ifdef VERBOSE_PARSING
+            printf("Float\n");
+            printf("  bytes: %d\n", constant_pool[i].info.float_info->bytes);
+#endif
             break;
         case CONSTANT_Long:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.long_info =
                 malloc(sizeof(struct t_constant_long_info));
             constant_pool[i].info.long_info->high_bytes =
                 read_u32(bytes, index);
             constant_pool[i].info.long_info->low_bytes = read_u32(bytes, index);
             i++;
+#ifdef VERBOSE_PARSING
+            printf("Long\n");
+            printf("  high_bytes: %x\n",
+                   constant_pool[i].info.long_info->high_bytes);
+            printf("  low_bytes: %x\n",
+                   constant_pool[i].info.long_info->low_bytes);
+#endif
             break;
         case CONSTANT_Double:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.double_info =
                 malloc(sizeof(struct t_constant_double_info));
             constant_pool[i].info.double_info->high_bytes =
@@ -59,32 +81,52 @@ void parse_constant_pool(struct t_cp_info *constant_pool,
             constant_pool[i].info.double_info->low_bytes =
                 read_u32(bytes, index);
             i++;
+#ifdef VERBOSE_PARSING
+            printf("Long\n");
+            printf("  high_bytes: %x\n",
+                   constant_pool[i].info.double_info->high_bytes);
+            printf("  low_bytes: %x\n",
+                   constant_pool[i].info.double_info->low_bytes);
+#endif
             break;
         case CONSTANT_Class:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.class_info =
                 malloc(sizeof(struct t_constant_class_info));
             constant_pool[i].info.class_info->name_index =
                 read_u16(bytes, index);
+#ifdef VERBOSE_PARSING
+            printf("Class\n");
+            printf("  name_index: %d\n",
+                   constant_pool[i].info.class_info->name_index);
+#endif
             break;
         case CONSTANT_String:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.string_info =
                 malloc(sizeof(struct t_constant_string_info));
             constant_pool[i].info.string_info->string_index =
                 read_u16(bytes, index);
+#ifdef VERBOSE_PARSING
+            printf("String\n");
+            printf("  string_index: %d\n",
+                   constant_pool[i].info.string_info->string_index);
+#endif
             break;
         case CONSTANT_Fieldref:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.fieldref_info =
                 malloc(sizeof(struct t_constant_fieldref_info));
             constant_pool[i].info.fieldref_info->class_index =
                 read_u16(bytes, index);
             constant_pool[i].info.fieldref_info->name_and_type_index =
                 read_u16(bytes, index);
+#ifdef VERBOSE_PARSING
+            printf("Fieldref\n");
+            printf("  class_index: %d\n",
+                   constant_pool[i].info.fieldref_info->class_index);
+            printf("  name_and_type_index: %d\n",
+                   constant_pool[i].info.fieldref_info->name_and_type_index);
+#endif
             break;
         case CONSTANT_Methodref:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.methodref_info =
                 malloc(sizeof(struct t_constant_methodref_info));
             constant_pool[i].info.methodref_info->class_index =
@@ -93,7 +135,6 @@ void parse_constant_pool(struct t_cp_info *constant_pool,
                 read_u16(bytes, index);
             break;
         case CONSTANT_InterfaceMethodref:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.interface_methodref_info =
                 malloc(sizeof(struct t_constant_interface_methodref_info));
             constant_pool[i].info.interface_methodref_info->class_index =
@@ -103,7 +144,6 @@ void parse_constant_pool(struct t_cp_info *constant_pool,
                 read_u16(bytes, index);
             break;
         case CONSTANT_NameAndType:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.name_and_type_info =
                 malloc(sizeof(struct t_constant_name_and_type_info));
             constant_pool[i].info.name_and_type_info->name_index =
@@ -112,7 +152,6 @@ void parse_constant_pool(struct t_cp_info *constant_pool,
                 read_u16(bytes, index);
             break;
         case CONSTANT_MethodHandle:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.method_handle_info =
                 malloc(sizeof(struct t_constant_method_handle_info));
             constant_pool[i].info.method_handle_info->reference_kind =
@@ -121,14 +160,12 @@ void parse_constant_pool(struct t_cp_info *constant_pool,
                 read_u16(bytes, index);
             break;
         case CONSTANT_MethodType:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.method_type_info =
                 malloc(sizeof(struct t_constant_method_type_info));
             constant_pool[i].info.method_type_info->descriptor_index =
                 read_u16(bytes, index);
             break;
         case CONSTANT_InvokeDynamic:
-            constant_pool[i].tag = tag;
             constant_pool[i].info.invoke_dynamic_info =
                 malloc(sizeof(struct t_constant_invoke_dynamic_info));
             constant_pool[i]
@@ -144,7 +181,7 @@ void parse_constant_pool(struct t_cp_info *constant_pool,
 }
 
 // Read a class file from a file
-struct t_class_file *parse_class_file_from_bytes(uint8_t *bytes, int len) {
+struct t_class_file *parse_class_file_from_bytes(uint8_t *bytes) {
     struct t_class_file *class_file = malloc(sizeof(struct t_class_file));
 
     int i = 0;
